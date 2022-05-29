@@ -1,6 +1,6 @@
 from flask          import Flask
 from flask_restful  import Api
-from resources       import Items
+from resources      import Items
 
 app     = Flask("expenselogger")
 api     = Api(app)
