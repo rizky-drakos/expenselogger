@@ -18,6 +18,21 @@ class LivingExpenseDB():
         else:
             logging.info('Successfully connected to table {}'.format(TABLE_NAME))
 
+    def __transform_items(self, items):
+        """
+        Transforms the format of items returned by DynamoDB so that they become
+        compatible with response outputs. 
+        
+        :param  items:
+        """
+        for item in items:
+            item[K_PRICE] = int(item[K_PRICE])
+            item[K_USERID] = int(item[K_USERID])
+            item[K_NAME] = item[K_DATENAME].split('#')[1]
+            item[K_DATE] = item[K_DATENAME].split('#')[0]
+            del item[K_DATENAME]
+        return items
+
     def create_item(self, userid, name, date, price):
         """
         Dynamo API calls for creating an item.
@@ -40,6 +55,25 @@ class LivingExpenseDB():
         else:
             logging.info('Successfully created an item.')
 
+    def get_items(self, userid):
+        """
+        Dynamo API calls for retrieving items by a given date.
+        
+        :param  userid  :
+        :param  name    :
+        :param  date    :
+        :param  price   :
+        :return: 
+        """
+        try:
+            rs = self.livingExpenseTable.query(KeyConditionExpression = Key(K_USERID).eq(userid))
+        except ClientError as error:
+            logging.error('Errors in retrieving items, details:\n{}'.format(error))
+            return None
+        else:
+            logging.info('Successfully retrieved items.')
+            return self.__transform_items(rs['Items'])
+
     def get_items_by_date(self, userid, date):
         """
         Dynamo API calls for retrieving items by a given date.
@@ -54,17 +88,12 @@ class LivingExpenseDB():
             rs = self.livingExpenseTable.query(
                 KeyConditionExpression = Key(K_USERID).eq(userid) & Key(K_DATENAME).begins_with(date)
             )
-            for item in rs['Items']:
-                item[K_PRICE] = int(item[K_PRICE])
-                item[K_USERID] = int(item[K_USERID])
-                item[K_NAME] = item[K_DATENAME].split('#')[0]
-                item[K_DATE] = item[K_DATENAME].split('#')[1]
-                del item[K_DATENAME]
         except ClientError as error:
             logging.error('Errors in retrieving items, details:\n{}'.format(error))
+            return None
         else:
             logging.info('Successfully retrieved items.')
-            return rs['Items']
+            return self.__transform_items(rs['Items'])
 
     def update_item(self, name, date, price, userid=1):
         """
