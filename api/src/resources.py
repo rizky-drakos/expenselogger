@@ -1,7 +1,7 @@
-import logging
-from common         import K_PRICE, K_USERID, K_NAME, K_DATE
+from common         import K_PRICE, K_NAME, K_DATE
 from flask_restful  import Resource
 from flask          import request
+from decorators     import jwt_needed
         
 
 class ItemsAPI(Resource):
@@ -10,14 +10,16 @@ class ItemsAPI(Resource):
         self.db = db
         super().__init__()
 
-    def get(self, userid):
-        rs = self.db.get_items(int(userid))
+    @jwt_needed
+    def get(self, username):
+        rs = self.db.get_items(username)
         if rs: return rs, 200
         else: return {}, 404
 
-    def post(self, userid):
+    @jwt_needed
+    def post(self, username):
         return self.db.create_item(
-            userid  = userid,
+            username  = username,
             name    = request.json[K_NAME],
             date    = request.json[K_DATE],
             price   = request.json[K_PRICE]
@@ -29,8 +31,9 @@ class ItemsByDate(Resource):
         self.db = db
         super().__init__()
 
-    def get(self, userid, date):
-        rs = self.db.get_items_by_date(int(userid), date)
+    @jwt_needed
+    def get(self, username, date):
+        rs = self.db.get_items_by_date(username, date)
         if rs: return rs, 200
         else: return {}, 404
 
@@ -40,17 +43,19 @@ class ItemAPI(Resource):
         self.db = db
         super().__init__()
 
-    def put(self, userid, date, name):
+    @jwt_needed
+    def put(self, username, date, name):
         return self.db.update_item(
-            userid  = userid,
+            username  = username,
             name    = name,
             date    = date,
             price   = request.json[K_PRICE]
         ), 204
 
-    def delete(self, userid, date, name):
+    @jwt_needed
+    def delete(self, username, date, name):
         return self.db.delete_item(
-            userid  = userid,
-            name    = date,
-            date    = name,
+            username  = username,
+            name    = name,
+            date    = date,
         ), 204

@@ -1,7 +1,5 @@
 import logging
 
-from pickle import TRUE
-
 from common         import APP_NAME
 from flask          import Flask
 from flask_restful  import Api
@@ -16,19 +14,19 @@ db      = LivingExpenseDB()
 
 api.add_resource(
     ItemsAPI,
-    '/<int:userid>/items',
+    '/items',
     resource_class_kwargs = { "db": db }
 )
 
 api.add_resource(
     ItemAPI,
-    '/<int:userid>/items/<string:date>/<string:name>',
+    '/items/<string:date>/<string:name>',
     resource_class_kwargs = { "db": db }
 )
 
 api.add_resource(
     ItemsByDate,
-    '/<int:userid>/items/<string:date>',
+    '/items/<string:date>',
     resource_class_kwargs = { "db": db }
 )
 
