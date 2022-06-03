@@ -3,7 +3,7 @@ import logging
 from common         import APP_NAME
 from flask          import Flask
 from flask_restful  import Api
-from resources      import ItemsAPI, ItemAPI, ItemsByDate
+from resources      import ItemsAPI, ItemsByDate
 from db             import LivingExpenseDB
 
 logging.basicConfig(level=logging.INFO)
@@ -15,12 +15,6 @@ db      = LivingExpenseDB()
 api.add_resource(
     ItemsAPI,
     '/items',
-    resource_class_kwargs = { "db": db }
-)
-
-api.add_resource(
-    ItemAPI,
-    '/items/<string:date>/<string:name>',
     resource_class_kwargs = { "db": db }
 )
 

@@ -5,6 +5,10 @@ from flask              import request
 from jose               import jwt
 from jose.exceptions    import ExpiredSignatureError
 
+public_key  = ''
+client_app  = ''
+user_pool   = ''
+
 def jwt_needed(func):
 
     @wraps(func)
