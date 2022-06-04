@@ -20,6 +20,7 @@ import sys
 import logging
 import requests
 
+from tabulate   import tabulate
 from docopt     import docopt
 from boto3      import client
 from datetime   import datetime
@@ -85,7 +86,12 @@ if __name__ == '__main__':
                 logging.error('Something happened, details:\n' + error)
 
             else:
-                logging.info('RESULTS:\n' + json.dumps(response.json(), indent=4))
+                headers = ['Date', 'Name', 'Price']
+                if response.ok:
+                    items = [ [item['date'], item['name'], item['price']] for item in response.json() ]
+                    print(tabulate(items, headers, tablefmt='pretty'))
+                else:
+                    print("Empty!")
 
         elif args['create']:
             try:
