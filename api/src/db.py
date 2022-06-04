@@ -10,7 +10,7 @@ class LivingExpenseDB():
 
     def __init__(self):
         try:
-            self.livingExpenseTable = resource('dynamodb').Table(TABLE_NAME)
+            self.livingExpenseTable = resource('dynamodb', 'ap-south-1').Table(TABLE_NAME)
             if self.livingExpenseTable.table_status != 'ACTIVE':
                 raise ClientError("The requested table is not ACTIVE!")
         except Exception as error:

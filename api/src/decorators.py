@@ -5,7 +5,7 @@ from flask              import request
 from jose               import jwt
 from jose.exceptions    import ExpiredSignatureError
 
-public_key  = ''
+public_key  = '' 
 client_app  = ''
 user_pool   = ''
 

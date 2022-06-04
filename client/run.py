@@ -1,7 +1,7 @@
 '''
 Usage: 
     run.py login --username USERNAME --password PASSWORD --clientid CLIENTID
-    run.py perform list
+    run.py perform list [ --date DATE | --all ]
     run.py perform (create|update) [ --date DATE ] --name NAME --price PRICE
     run.py perform delete [ --date DATE ] --name NAME
 
@@ -43,6 +43,7 @@ if __name__ == '__main__':
             ClientId = args['--clientid']
         )
         logging.info('Successfully logged-in!')
+
         with open(TOKENS_FILE, 'w') as tokensfile:
             json.dump(
                 { 
@@ -68,73 +69,77 @@ if __name__ == '__main__':
             logging.info('Please log-in!')
             sys.exit(0)
 
-        else:
-            if args['list'] :
-                try:
-                    response = requests.get(
-                        API_URL + '/items/{}'.format(TODAY),
-                        headers = { 'Authorization': "Bearer {}".format(tokens['ID_TOKEN']) }
-                    )
-                
-                except requests.exceptions.RequestException as error:
-                    logging.error('Something happened, details:\n' + error)
-
-                else:
-                    logging.info('RESULTS:\n' + json.dumps(response.json(), indent=4))
-
-            elif args['create']:
-                try:
-                    response = requests.post(
-                        API_URL + '/items',
-                        headers = { 'Authorization': "Bearer {}".format(tokens['ID_TOKEN']) },
-                        json = {
-                            "date"  :   args['--date'] or TODAY,
-                            "price" :   int(args['--price']),
-                            "name"  :   args['--name']
-                        }
-                    )
-                
-                except requests.exceptions.RequestException as error:
-                    logging.error('Something happened, details:\n' + error)
-
-                else:
-                    logging.info('RESULTS: {}'.format(response.status_code))
-
-
-            elif args['update']:
-                try:
-                    response = requests.put(
-                        API_URL + '/items',
-                        headers = { 'Authorization': "Bearer {}".format(tokens['ID_TOKEN']) },
-                        json = {
-                            "date"  :   args['--date'] or TODAY,
-                            "price" :   int(args['--price']),
-                            "name"  :   args['--name']
-                        }
-                    )
-                
-                except requests.exceptions.RequestException as error:
-                    logging.error('Something happened, details:\n' + error)
-
-                else:
-                    logging.info('RESULTS: {}'.format(response.status_code))
-
-            elif args['delete']:
-                try:
-                    response = requests.delete(
-                        API_URL + '/items',
-                        headers = { 'Authorization': "Bearer {}".format(tokens['ID_TOKEN']) },
-                        json = {
-                            "date"  :   args['--date'] or TODAY,
-                            "name"  :   args['--name']
-                        }
-                    )
-
-                except requests.exceptions.RequestException as error:
-                    logging.error('Something happened, details:\n' + error)
-
-                else:
-                    logging.info('RESULTS: {}'.format(response.status_code))
+        if args['list'] :
+            '''
+                - When --date is explicitly specified, list all items of the date.
+                - When both --all and --date are not specified, list all items of today.
+                - When only --all is explicitly specified, list all items.
+            '''
+            try:
+                response = requests.get(
+                    API_URL + ('/items/{}'.format(args['--date'] or TODAY) if not args['--all'] else '/items')  ,
+                    headers = { 'Authorization': "Bearer {}".format(tokens['ID_TOKEN']) }
+                )
+            
+            except requests.exceptions.RequestException as error:
+                logging.error('Something happened, details:\n' + error)
 
             else:
-                logging.info(f'{args["ACTION"]} is not supported!')
+                logging.info('RESULTS:\n' + json.dumps(response.json(), indent=4))
+
+        elif args['create']:
+            try:
+                response = requests.post(
+                    API_URL + '/items',
+                    headers = { 'Authorization': "Bearer {}".format(tokens['ID_TOKEN']) },
+                    json = {
+                        "date"  :   args['--date'] or TODAY,
+                        "price" :   int(args['--price']),
+                        "name"  :   args['--name']
+                    }
+                )
+            
+            except requests.exceptions.RequestException as error:
+                logging.error('Something happened, details:\n' + error)
+
+            else:
+                logging.info('RESULTS: {}'.format(response.status_code))
+
+
+        elif args['update']:
+            try:
+                response = requests.put(
+                    API_URL + '/items',
+                    headers = { 'Authorization': "Bearer {}".format(tokens['ID_TOKEN']) },
+                    json = {
+                        "date"  :   args['--date'] or TODAY,
+                        "price" :   int(args['--price']),
+                        "name"  :   args['--name']
+                    }
+                )
+            
+            except requests.exceptions.RequestException as error:
+                logging.error('Something happened, details:\n' + error)
+
+            else:
+                logging.info('RESULTS: {}'.format(response.status_code))
+
+        elif args['delete']:
+            try:
+                response = requests.delete(
+                    API_URL + '/items',
+                    headers = { 'Authorization': "Bearer {}".format(tokens['ID_TOKEN']) },
+                    json = {
+                        "date"  :   args['--date'] or TODAY,
+                        "name"  :   args['--name']
+                    }
+                )
+
+            except requests.exceptions.RequestException as error:
+                logging.error('Something happened, details:\n' + error)
+
+            else:
+                logging.info('RESULTS: {}'.format(response.status_code))
+
+        else:
+            logging.info(f'{args["ACTION"]} is not supported!')
