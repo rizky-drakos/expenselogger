@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from common                     import K_PRICE, K_USERNAME, K_DATENAME, K_NAME, K_DATE, TABLE_NAME
 from decimal                    import Decimal
@@ -15,6 +16,7 @@ class LivingExpenseDB():
                 raise ClientError("The requested table is not ACTIVE!")
         except Exception as error:
             logging.error('Errors in connecting to table {}, details:\n{}'.format(TABLE_NAME, error))
+            sys.exit(1)
         else:
             logging.info('Successfully connected to table {}'.format(TABLE_NAME))
 

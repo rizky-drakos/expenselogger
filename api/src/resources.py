@@ -4,6 +4,14 @@ from flask          import request
 from decorators     import jwt_needed
         
 
+class HealthStatusAPI(Resource):
+
+    def  __init__(self):
+        super().__init__()
+
+    def get(self):
+        return { "msg": "Healthy!" }, 200
+
 class ItemsAPI(Resource):
 
     def __init__(self, db):

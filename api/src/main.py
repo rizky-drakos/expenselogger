@@ -3,7 +3,7 @@ import logging
 from common         import APP_NAME
 from flask          import Flask
 from flask_restful  import Api
-from resources      import ItemsAPI, ItemsByDate
+from resources      import ItemsAPI, ItemsByDate, HealthStatusAPI
 from db             import LivingExpenseDB
 
 logging.basicConfig(level=logging.INFO)
@@ -11,6 +11,11 @@ logging.basicConfig(level=logging.INFO)
 app     = Flask(APP_NAME)
 api     = Api(app)
 db      = LivingExpenseDB()
+
+api.add_resource(
+    HealthStatusAPI,
+    '/'
+)
 
 api.add_resource(
     ItemsAPI,
