@@ -1,0 +1,123 @@
+{
+    "Parameters": {
+        "VPC": {
+            "Description" : "VPC ID",
+            "Type" : "AWS::EC2::VPC::Id"      
+        },
+        "Subnets": {
+            "Description" : "Subnet IDs",
+            "Type" : "List<AWS::EC2::Subnet::Id>"
+        },
+        "SecurityGroups": {
+            "Description" : "SecurityGroup ID",
+            "Type" : "List<AWS::EC2::SecurityGroup::Id>"
+        }
+    },
+    "Resources": {
+        "ExpenseLoggerALB": {
+            "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "Properties" : {
+                "Name" : "expenselogger-api",
+                "SecurityGroups" : { "Ref": "SecurityGroups" },
+                "Subnets" : { "Ref": "Subnets" }
+            }
+        },      
+        "ExpenseLoggerECSTargetGroup": {
+            "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties" : {
+                "HealthCheckPath" : "/",
+                "Name" : "expenselogger-api",
+                "Port" : 8000,
+                "Protocol" : "HTTP",
+                "TargetType" : "ip",
+                "VpcId" : { "Ref": "VPC" }
+            }
+        },
+        "ExpenseLoggerListener": {
+            "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+            "Properties" : {
+                "DefaultActions" : [
+                    {
+                        "Order": 1,
+                        "Type": "forward",
+                        "ForwardConfig": {
+                            "TargetGroups" : [
+                                {
+                                    "TargetGroupArn" : { "Ref": "ExpenseLoggerECSTargetGroup" }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "LoadBalancerArn" : { "Ref" : "ExpenseLoggerALB" },
+                "Port" : 80,
+                "Protocol" : "HTTP"
+            }
+        },
+        "ExpenseLoggerCluster": {
+            "Type" : "AWS::ECS::Cluster",
+            "Properties" : {
+                "CapacityProviders" : [ "FARGATE" ],
+                "ClusterName" : "ExspenseLogger"
+            }
+        },
+        "ExpenseLoggerService": {
+            "Type" : "AWS::ECS::Service",
+            "Properties" : {
+                "Cluster" : { "Ref" : "ExpenseLoggerCluster" },
+                "DesiredCount" : 1,
+                "LaunchType" : "FARGATE",
+                "LoadBalancers" : [
+                    {
+                        "ContainerName" : "expenselogger-api",
+                        "ContainerPort" : 8000,
+                        "TargetGroupArn" : { "Ref" : "ExpenseLoggerECSTargetGroup" }
+                    }
+                ],
+                "NetworkConfiguration" : {
+                    "AwsvpcConfiguration": {
+                        "AssignPublicIp": "ENABLED",
+                        "SecurityGroups" : { "Ref": "SecurityGroups" },
+                        "Subnets" : { "Ref": "Subnets" }
+                    }
+                },
+                "ServiceName" : "expenselogger-api",
+                "TaskDefinition" : "expenselogger-api:24"
+            },
+            "DependsOn": "ExpenseLoggerListener"
+        },
+        "ExpenseLoggerECSTask": {
+            "Type" : "AWS::ECS::TaskDefinition",
+            "Properties" : {
+                "ContainerDefinitions" : [
+                    {
+                        "Name": "expenselogger-api",
+                        "Image": "public.ecr.aws/p7d4b9s7/expenselogger:latest",
+                        "PortMappings":[ { "ContainerPort": 8000 } ],
+                        "LogConfiguration": {
+                            "LogDriver" : "awslogs",
+                            "Options" : {
+                                "awslogs-group": "/ecs/expenselogger-api",
+                                "awslogs-region": "ap-south-1",
+                                "awslogs-stream-prefix": "ecs",
+                                "awslogs-create-group": "true"
+                            }
+                        },
+                        "Essential": true
+                    }
+                ],
+                "ExecutionRoleArn" : "arn:aws:iam::712763700181:role/ecsTaskExecutionRole",
+                "Family" : "expenselogger-api",
+                "Memory" : "512",
+                "Cpu": "256",
+                "NetworkMode" : "awsvpc",
+                "RequiresCompatibilities" : [ "FARGATE" ],
+                "RuntimePlatform" : {
+                    "CpuArchitecture" : "X86_64",
+                    "OperatingSystemFamily" : "LINUX"
+                },
+                "TaskRoleArn" : "arn:aws:iam::712763700181:role/EcsTaskRoleForDynamoDB"
+            }
+        }
+    }
+}
