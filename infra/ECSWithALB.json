@@ -21,7 +21,7 @@
                 "SecurityGroups" : { "Ref": "SecurityGroups" },
                 "Subnets" : { "Ref": "Subnets" }
             }
-        },      
+        }, 
         "ExpenseLoggerECSTargetGroup": {
             "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
             "Properties" : {
@@ -117,6 +117,34 @@
                     "OperatingSystemFamily" : "LINUX"
                 },
                 "TaskRoleArn" : "arn:aws:iam::712763700181:role/EcsTaskRoleForDynamoDB"
+            }
+        },
+        "ExpenseLoggerServiceAutoscaling": {
+            "Type" : "AWS::ApplicationAutoScaling::ScalableTarget",
+            "Properties" : {
+                "MaxCapacity" : 5,
+                "MinCapacity" : 1,
+                "ResourceId" : "service/ExspenseLogger/expenselogger-api",
+                "RoleARN" : {
+                    "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService" 
+                },
+                "ScalableDimension" : "ecs:service:DesiredCount",
+                "ServiceNamespace" : "ecs"
+            },
+            "DependsOn": "ExpenseLoggerService"
+        },
+        "ExpenseLoggerTargetTrackingScalingPolicy":{
+            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+            "Properties" : {
+                "PolicyName": "cpu75-target-tracking-scaling-policy",
+                "PolicyType": "TargetTrackingScaling",
+                "ScalingTargetId": { "Ref": "ExpenseLoggerServiceAutoscaling" },
+                "TargetTrackingScalingPolicyConfiguration": {
+                    "TargetValue": 75.0,
+                    "ScaleInCooldown": 60,
+                    "ScaleOutCooldown": 60,
+                    "PredefinedMetricSpecification" : { "PredefinedMetricType" : "ECSServiceAverageCPUUtilization" }
+                }
             }
         }
     },
