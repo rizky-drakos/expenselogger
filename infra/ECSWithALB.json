@@ -2,7 +2,7 @@
     "Parameters": {
         "VPC": {
             "Description" : "VPC ID",
-            "Type" : "AWS::EC2::VPC::Id"      
+            "Type" : "AWS::EC2::VPC::Id"
         },
         "Subnets": {
             "Description" : "Subnet IDs",
@@ -82,9 +82,9 @@
                     }
                 },
                 "ServiceName" : "expenselogger-api",
-                "TaskDefinition" : "expenselogger-api:24"
+                "TaskDefinition" : { "Ref": "ExpenseLoggerECSTask" }
             },
-            "DependsOn": "ExpenseLoggerListener"
+            "DependsOn": [ "ExpenseLoggerListener" ]
         },
         "ExpenseLoggerECSTask": {
             "Type" : "AWS::ECS::TaskDefinition",
