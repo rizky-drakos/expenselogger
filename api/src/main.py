@@ -19,13 +19,13 @@ api.add_resource(
 
 api.add_resource(
     ItemsAPI,
-    '/items',
+    '/<string:username>/items',
     resource_class_kwargs = { "db": db }
 )
 
 api.add_resource(
     ItemsByDate,
-    '/items/<string:date>',
+    '/<string:username>/items/<string:date>',
     resource_class_kwargs = { "db": db }
 )
 
