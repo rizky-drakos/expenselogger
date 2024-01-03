@@ -1,4 +1,4 @@
-![Highly available and scalable Expense logger system](/expenselogger-architecture.png)
+![Highly available and scalable Expense logger system](expenselogger-architecture.png)
 
 <h1>Architecture</h1>
 
