@@ -15,6 +15,6 @@ COPY --from=build /wheels /wheels
 COPY ["src", "requirements.txt", "./"]
 RUN python -m pip install --upgrade pip \
     && python -m pip install /wheels/*
-EXPOSE 8000
+EXPOSE 8080
 ENTRYPOINT [ "gunicorn" ]
-CMD [ "--bind", "0.0.0.0:8000", "main:app" ]
+CMD [ "--bind", "0.0.0.0:8080", "main:app" ]

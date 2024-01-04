@@ -11,7 +11,14 @@ class LivingExpenseDB():
 
     def __init__(self):
         try:
-            self.livingExpenseTable = resource('dynamodb', 'ap-south-1').Table(TABLE_NAME)
+            # need to create a dynamic endpoint that can pick the right value depending on the target env.
+            self.livingExpenseTable = resource(
+                'dynamodb',
+                'ap-south-1',
+                aws_access_key_id="local",
+                aws_secret_access_key="local",
+                endpoint_url='http://dynamodb-svc.dynamodb'
+            ).Table(TABLE_NAME)
             if self.livingExpenseTable.table_status != 'ACTIVE':
                 raise ClientError("The requested table is not ACTIVE!")
         except Exception as error:
