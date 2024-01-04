@@ -13,7 +13,7 @@ case $1 in
     kubectl apply -f templates/dynamodb.yaml
     kubectl wait --all --for=condition=Ready -l app=dynamodb pod -n dynamodb --timeout=60s
     kubectl apply -f templates/create-table.yaml
-    kubectl wit --all --for=condition=Complete=True job -n dynamodb --timeout=60s
+    kubectl wait --all --for=condition=Complete=True job -n dynamodb --timeout=60s
     ;;
   "off")
     cleanup
