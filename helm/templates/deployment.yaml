@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: expenselogger
+  name: expenselogger
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: expenselogger
+  template:
+    metadata:
+      labels:
+        app: expenselogger
+    spec:
+      containers:
+      - image: nhphat1997/expenselogger-api:latest
+        imagePullPolicy: IfNotPresent
+        name: expenselogger-api
+      restartPolicy: Always
