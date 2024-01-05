@@ -15,8 +15,6 @@ class LivingExpenseDB():
             self.livingExpenseTable = resource(
                 'dynamodb',
                 'ap-south-1',
-                aws_access_key_id="local",
-                aws_secret_access_key="local",
                 endpoint_url='http://dynamodb-svc.dynamodb'
             ).Table(TABLE_NAME)
             if self.livingExpenseTable.table_status != 'ACTIVE':
