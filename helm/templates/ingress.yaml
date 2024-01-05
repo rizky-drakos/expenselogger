@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: expenselogger-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
     - http:
@@ -14,4 +14,4 @@ spec:
               service:
                 name: expenselogger-svc
                 port:
-                  number: 80
+                  number: 8080
