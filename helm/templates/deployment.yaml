@@ -2,24 +2,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: expenselogger
-  name: expenselogger
-  namespace: default
+    app: {{ .Chart.Name }}
+  name: {{ .Chart.Name }}
 spec:
-  replicas: 2
+  replicas: {{ .Values.replicas | default 2 }}
   selector:
     matchLabels:
-      app: expenselogger
+      app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-        app: expenselogger
+        app: {{ .Chart.Name }}
     spec:
+      serviceAccountName: {{ .Values.serviceAccount | default "default" }}
       containers:
       - image: nhphat1997/expenselogger-api:latest
         imagePullPolicy: IfNotPresent
         name: expenselogger-api
         envFrom:
         - configMapRef:
-            name: expenselogger
+            name: {{ .Chart.Name }}-config
+      # probe/readiness/liveness
+      # resources
       restartPolicy: Always

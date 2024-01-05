@@ -1,0 +1,5 @@
+app_configs:
+  AWS_ACCESS_KEY_ID: minikube
+  AWS_SECRET_ACCESS_KEY: minikube
+  AWS_DEFAULT_REGION: ap-south-1
+  INFRA: minikube

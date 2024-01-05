@@ -6,17 +6,16 @@ from decimal                    import Decimal
 from boto3                      import resource
 from boto3.dynamodb.conditions  import Key
 from botocore.exceptions        import ClientError
+from os                         import environ
 
 class LivingExpenseDB():
 
     def __init__(self):
         try:
-            # need to create a dynamic endpoint that can pick the right value depending on the target env.
-            self.livingExpenseTable = resource(
-                'dynamodb',
-                'ap-south-1',
-                endpoint_url='http://dynamodb-svc.dynamodb'
-            ).Table(TABLE_NAME)
+            if environ['INFRA'] == 'minikube':
+                self.livingExpenseTable = resource('dynamodb', endpoint_url='http://dynamodb-svc.dynamodb').Table(TABLE_NAME)
+            else:
+                self.livingExpenseTable = resource('dynamodb').Table(TABLE_NAME)
             if self.livingExpenseTable.table_status != 'ACTIVE':
                 raise ClientError("The requested table is not ACTIVE!")
         except Exception as error:

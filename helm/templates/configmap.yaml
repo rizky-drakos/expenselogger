@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: expenselogger
+  name: {{ .Chart.Name }}-config
 data:
-  AWS_ACCESS_KEY_ID: local
-  AWS_SECRET_ACCESS_KEY: local
+{{- range $k, $v := .Values.app_configs }}
+  {{ $k }}: {{ $v }}
+{{- end }}
