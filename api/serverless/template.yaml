@@ -1,0 +1,42 @@
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: "username"
+          AttributeType: "S"
+        - AttributeName: "date_item"
+          AttributeType: "S"
+      KeySchema: 
+        - AttributeName: "username"
+          KeyType: "HASH"
+        - AttributeName: "date_item"
+          KeyType: "RANGE"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: "DailyExpense"
+  APIGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+  GetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      CodeUri: functions/get
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /items
+            Method: get
+            RestApiId: !Ref RestAPI
+
+Outputs:
+  RestAPI:
+    Value: !Sub "https://${RestAPI}.execute-api.${AWS::Region}.amazonaws.com/dev/items/"
