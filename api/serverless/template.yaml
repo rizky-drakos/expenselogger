@@ -10,21 +10,29 @@ Resources:
           AttributeType: "S"
         - AttributeName: "date_item"
           AttributeType: "S"
-      KeySchema: 
+      KeySchema:
         - AttributeName: "username"
           KeyType: "HASH"
         - AttributeName: "date_item"
           KeyType: "RANGE"
-      ProvisionedThroughput: 
+      ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
       TableName: "DailyExpense"
+
   APIGateway:
     Type: AWS::Serverless::Api
     Properties:
       StageName: dev
+
   GetFunction:
     Type: AWS::Serverless::Function
+    Connectors:
+      DbReadConnector:
+        Properties:
+          Destination:
+            Id: DynamoDBTable
+          Permissions: ["Read"]
     Properties:
       Handler: app.lambda_handler
       Runtime: python3.11
@@ -35,8 +43,34 @@ Resources:
           Properties:
             Path: /items
             Method: get
-            RestApiId: !Ref RestAPI
+            RestApiId: !Ref APIGateway
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DynamoDBTable
+
+  PostFunction:
+    Type: AWS::Serverless::Function
+    Connectors:
+      DbWriteConnector:
+        Properties:
+          Destination:
+            Id: DynamoDBTable
+          Permissions: ["Write"]
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      CodeUri: functions/post
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /items
+            Method: post
+            RestApiId: !Ref APIGateway
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DynamoDBTable
 
 Outputs:
   RestAPI:
-    Value: !Sub "https://${RestAPI}.execute-api.${AWS::Region}.amazonaws.com/dev/items/"
+    Value: !Sub "https://${APIGateway}.execute-api.${AWS::Region}.amazonaws.com/dev/items/"
