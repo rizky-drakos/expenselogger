@@ -38,6 +38,6 @@ def lambda_handler(event, context):
         }
     except Exception as error:
         logger.error(f"Failed to retrieve items with error: {error}")
-        response = { "statusCode": 500 }
+        response = { "statusCode": 400 }
 
     return response
